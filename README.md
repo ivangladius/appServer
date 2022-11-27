@@ -6,7 +6,7 @@ run this in Terminal:
 ```
 git clone https://https://github.com/ivangladius/appServer.git
 cd appServer
-javac Main.javac
+javac Main.java
 javac client.java
 javac appServer/Server.java
 ```
