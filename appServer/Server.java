@@ -11,9 +11,6 @@ public class Server {
     private int port;
 
     private ServerSocket serverSocket;
-    private Socket clientSocket;
-    private PrintWriter out;
-    private BufferedReader in;
 
     private ThreadPoolExecutor executor;
 
@@ -37,63 +34,84 @@ public class Server {
     public void loop() {
 	for (;;) {
 	    try {
-		clientSocket = serverSocket.accept();
-		executor.execute(new MyRunnable(this));
+		Socket clientSocket = serverSocket.accept();
+		executor.execute(new MyRunnable(this, clientSocket));
 	    } catch(IOException ignore) {}
 	}
     }
 
     public void handle_connection(Socket cSocket) {
 
+	System.out.println("\nClient connected: "
+			   + cSocket.getRemoteSocketAddress().toString());
+
+
 	try {
 	    
-	    out = new PrintWriter(clientSocket.getOutputStream(), true);
-	    in = new BufferedReader
+	    // PrintWriter out = new PrintWriter(cSocket.getOutputStream(), true);
+	    PrintWriter out = new PrintWriter(cSocket.getOutputStream(), true);
+	    BufferedReader in = new BufferedReader
 		(new InputStreamReader(cSocket.getInputStream()));
 
-	    String msg = in.readLine();
-	    System.out.println("Client send: " + msg);
+	    String operation = in.readLine();
 
-	    close_connection(cSocket);
+	    if (operation != null) {
+		if (operation.equals("getUsername"))
+		    replyUsername(out);
+	    } else {
+		replyError(out);
+	    }
+
+	    out.close();
+	    in.close();
+	    closeClient(cSocket);
 
 	} catch(UnknownHostException e) {
-	    close_connection(cSocket);
+	    closeClient(cSocket);
 	    e.printStackTrace();
 	} catch(IOException e) {
-	    close_connection(cSocket);
+	    closeClient(cSocket);
 	    e.printStackTrace();
 	}
     }
 
-    private void close_connection(Socket cSocket) {
+    private void closeClient(Socket cSocket) {
 	try {
-	    in.close();
-	    out.close();
 	    cSocket.close();
 	} catch(IOException ignore) {} 
     }
 
     public void stop() {
 	try {
-	    close_connection(clientSocket);
 	    serverSocket.close();
 	} catch(IOException ignore) { }
     }
 
-    public ServerSocket getServerSocket() { return this.serverSocket; }
-    public Socket getClientSocket() { return this.clientSocket; }
+    public void replyUsername(PrintWriter out) {
+	out.print("Maximus Ivan Gladius");
+	System.out.println("Username requested");
+
+    }
+
+    public void replyError(PrintWriter out) {
+	out.print("Error");
+    }
 }
 
 class MyRunnable implements Runnable {
 
     private Server server;
+    private Socket client;
 
-    public MyRunnable(Server server) {
+    // passing original server object to this constructor
+    public MyRunnable(Server server, Socket client) {
 	this.server = server;
+	this.client = client;
     }
+
     public void run() {
-	server.handle_connection(server.getClientSocket());
-	long threadId = Thread.currentThread().getId();
-	System.out.print("ID: " + threadId + " ");
+	this.server.handle_connection(this.client);
+	// long threadId = Thread.currentThread().getId();
+	// System.out.print("ID: " + threadId + " ");
     }
 }
