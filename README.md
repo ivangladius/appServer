@@ -6,10 +6,12 @@ run this in Terminal:
 ```
 git clone https://https://github.com/ivangladius/appServer.git
 cd appServer
-javac Main.java
-javac client.java
-javac appServer/Server.java
+``` 
+just run: 
 ```
+bash run
+```
+which compiles all java files appropiate
 
 Now open two terminals in one you start the server: 
 ```
@@ -22,4 +24,6 @@ in the other terminal start the client and request the server:
 java client 8888
 ```
 where 8888 is the port of the Server
+
+The client will Simulate an getUsername() request, the Server then replies which the proper Username
 
