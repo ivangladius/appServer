@@ -6,6 +6,8 @@ import java.io.*;
 import java.net.*;
 import java.util.concurrent.*;
 
+import appServer.MessageObject;
+
 public class Server {
 
     private int port;
@@ -49,18 +51,35 @@ public class Server {
 	try {
 	    
 	    // PrintWriter out = new PrintWriter(cSocket.getOutputStream(), true);
-	    PrintWriter out = new PrintWriter(cSocket.getOutputStream(), true);
-	    BufferedReader in = new BufferedReader
-		(new InputStreamReader(cSocket.getInputStream()));
+	    // PrintWriter out = new PrintWriter(cSocket.getOutputStream(), true);
+	    // BufferedReader in = new BufferedReader
+	    // 	(new InputStreamReader(cSocket.getInputStream()));
 
-	    String operation = in.readLine();
+	    //	    String operation = in.readLine();
 
-	    if (operation != null) {
-		if (operation.equals("getUsername"))
-		    replyUsername(out);
-	    } else {
-		replyError(out);
-	    }
+	    ObjectOutputStream out = new ObjectOutputStream(cSocket.getOutputStream());
+	    ObjectInputStream in = new ObjectInputStream(cSocket.getInputStream());
+
+	    MessageObject message = (MessageObject) in.readObject();
+
+	    if (message.getOperation().equals("getUsername"))
+		replyUsername(out, message.getKey());
+
+	    message.print();
+
+	    // String[] query = operation.split(" ");
+
+	    // String email = query[0];
+	    // String op = query[1];
+
+	    // System.out.println("EMAIL : " + email + " OP: " + op);
+
+	    // if (operation != null) {
+	    // 	if (operation.equals("getUsername"))
+	    // 	    replyUsername(out);
+	    // } else {
+	    // 	replyError(out);
+	    // }
 
 	    out.close();
 	    in.close();
@@ -70,6 +89,9 @@ public class Server {
 	    closeClient(cSocket);
 	    e.printStackTrace();
 	} catch(IOException e) {
+	    closeClient(cSocket);
+	    e.printStackTrace();
+	} catch(ClassNotFoundException e) {
 	    closeClient(cSocket);
 	    e.printStackTrace();
 	}
@@ -87,10 +109,14 @@ public class Server {
 	} catch(IOException ignore) { }
     }
 
-    public void replyUsername(PrintWriter out) {
-	out.print("Maximus Ivan Gladius");
-	System.out.println("Username requested");
-
+    public void replyUsername(ObjectOutputStream out, int key) {
+	try {
+	    MessageObject replyMessage = new MessageObject(key, null, "hans peter gustav");
+	    out.writeObject(replyMessage);
+	} catch (IOException e) {
+	    // ignore
+	}
+	System.out.println("Username requested\n");
     }
 
     public void replyError(PrintWriter out) {

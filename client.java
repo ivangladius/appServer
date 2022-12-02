@@ -2,6 +2,7 @@ import java.util.*;
 import java.io.*;
 import java.net.*;
 
+import appServer.MessageObject;
 
 class Client {
 
@@ -11,8 +12,11 @@ class Client {
 
     private boolean status;
 
-    private PrintWriter output;
-    private BufferedReader input;
+    // private PrintWriter output;
+    // private BufferedReader input;
+    private ObjectOutputStream out;
+    private ObjectInputStream in;
+
 
     public Client(String address, Integer port) {
 	try {
@@ -29,7 +33,9 @@ class Client {
     private void connect() {
 	try {
 	    clientSocket = new Socket(this.address, this.port);
-	    output = new PrintWriter(clientSocket.getOutputStream(), true);
+	    // output = new PrintWriter(clientSocket.getOutputStream(), true);
+	    out = new ObjectOutputStream(clientSocket.getOutputStream());
+	    
 	} catch(IOException e) {
 	    System.out.println("COULD NOT CONNECT!!!");
 	    status = false;
@@ -51,24 +57,44 @@ class Client {
 
 	connect();
 
-	output.println("getUsername");
-
-	System.out.println("sending succesful");
-
 	try {
-	    input = new BufferedReader
-		(new InputStreamReader(clientSocket.getInputStream()));
-	    username = input.readLine();
-	    input.close();
+	    in = new ObjectInputStream(clientSocket.getInputStream());
+
+	    MessageObject message = new MessageObject(403, "getUsername", null);
+	    MessageObject reply;
+
+	    out.writeObject(message);
+
+	    //output.println("max@gmail.com getUsername");
+
+	    // System.out.println("sending succesful");
+
+	    // ObjectInputStream in = new ObjectInputStream(cSocket.getInputStream());
+
+	    // input = new BufferedReader
+	    // 	(new InputStreamReader(clientSocket.getInputStream()));
+	    // username = input.readLine();
+	    reply = (MessageObject) in.readObject();
+	    username = reply.getPayload();
+	    reply.print();
+
+	    in.close();
+	    out.close();
+
+	    // input.close();
 	} catch (IOException e) {
 	    e.printStackTrace();
 	} catch (NullPointerException e) {
 	    e.printStackTrace();
+	} catch (ClassNotFoundException e) {
+	    e.printStackTrace();
 	}
 
-	System.out.println("reading succesful\n");
 
-	output.close();
+
+	// System.out.println("reading succesful\n");
+
+	// output.close();
 
 	closeSocket();
 
@@ -77,7 +103,6 @@ class Client {
 	else
 	    return null;
     }
-
 } 
 
 public class client {
@@ -88,9 +113,9 @@ public class client {
 	try {
 	    String username = client.getUsername();
 	if (username != null)
-	    System.out.println("Username: " + username + "\n");
+	    System.out.println("\nUsername: " + username + "\n");
 	else
-	    System.out.println("Username not found!");
+	    System.out.println("\nUsername not found!");
 	} catch (NullPointerException ignore) { }
 
     }
