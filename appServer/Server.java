@@ -18,109 +18,109 @@ public class Server {
 
     public Server(int port, int threadPoolSize) {
 
-	this.port = port;
+        this.port = port;
 
-	executor = (ThreadPoolExecutor)
-	    Executors.newFixedThreadPool(threadPoolSize);
+        executor = (ThreadPoolExecutor)
+            Executors.newFixedThreadPool(threadPoolSize);
     }
 
     public void start() {
-	try {
-	    serverSocket = new ServerSocket(port);
-	} catch(IOException e) {
-	    stop();
-	    e.printStackTrace();
-	}
+        try {
+            serverSocket = new ServerSocket(port);
+        } catch(IOException e) {
+            stop();
+            e.printStackTrace();
+        }
     }
 
     public void loop() {
-	for (;;) {
-	    try {
-		Socket clientSocket = serverSocket.accept();
-		executor.execute(new MyRunnable(this, clientSocket));
-	    } catch(IOException ignore) {}
-	}
+        for (;;) {
+            try {
+                Socket clientSocket = serverSocket.accept();
+                executor.execute(new MyRunnable(this, clientSocket));
+            } catch(IOException ignore) {}
+        }
     }
 
     public void handle_connection(Socket cSocket) {
 
-	System.out.println("\nClient connected: "
-			   + cSocket.getRemoteSocketAddress().toString());
+        System.out.println("\nClient connected: "
+                + cSocket.getRemoteSocketAddress().toString());
 
 
-	try {
-	    
-	    // PrintWriter out = new PrintWriter(cSocket.getOutputStream(), true);
-	    // PrintWriter out = new PrintWriter(cSocket.getOutputStream(), true);
-	    // BufferedReader in = new BufferedReader
-	    // 	(new InputStreamReader(cSocket.getInputStream()));
+        try {
 
-	    //	    String operation = in.readLine();
+            // PrintWriter out = new PrintWriter(cSocket.getOutputStream(), true);
+            // PrintWriter out = new PrintWriter(cSocket.getOutputStream(), true);
+            // BufferedReader in = new BufferedReader
+            // 	(new InputStreamReader(cSocket.getInputStream()));
 
-	    ObjectOutputStream out = new ObjectOutputStream(cSocket.getOutputStream());
-	    ObjectInputStream in = new ObjectInputStream(cSocket.getInputStream());
+            //	    String operation = in.readLine();
 
-	    MessageObject message = (MessageObject) in.readObject();
+            ObjectOutputStream out = new ObjectOutputStream(cSocket.getOutputStream());
+            ObjectInputStream in = new ObjectInputStream(cSocket.getInputStream());
 
-	    if (message.getOperation().equals("getUsername"))
-		replyUsername(out, message.getKey());
+            MessageObject message = (MessageObject) in.readObject();
 
-	    message.print();
+            if (message.getOperation().equals("getUsername"))
+                replyUsername(out, message.getKey());
 
-	    // String[] query = operation.split(" ");
+            message.print();
 
-	    // String email = query[0];
-	    // String op = query[1];
+            // String[] query = operation.split(" ");
 
-	    // System.out.println("EMAIL : " + email + " OP: " + op);
+            // String email = query[0];
+            // String op = query[1];
 
-	    // if (operation != null) {
-	    // 	if (operation.equals("getUsername"))
-	    // 	    replyUsername(out);
-	    // } else {
-	    // 	replyError(out);
-	    // }
+            // System.out.println("EMAIL : " + email + " OP: " + op);
 
-	    out.close();
-	    in.close();
-	    closeClient(cSocket);
+            // if (operation != null) {
+            // 	if (operation.equals("getUsername"))
+            // 	    replyUsername(out);
+            // } else {
+            // 	replyError(out);
+            // }
 
-	} catch(UnknownHostException e) {
-	    closeClient(cSocket);
-	    e.printStackTrace();
-	} catch(IOException e) {
-	    closeClient(cSocket);
-	    e.printStackTrace();
-	} catch(ClassNotFoundException e) {
-	    closeClient(cSocket);
-	    e.printStackTrace();
-	}
+            out.close();
+            in.close();
+            closeClient(cSocket);
+
+        } catch(UnknownHostException e) {
+            closeClient(cSocket);
+            e.printStackTrace();
+        } catch(IOException e) {
+            closeClient(cSocket);
+            e.printStackTrace();
+        } catch(ClassNotFoundException e) {
+            closeClient(cSocket);
+            e.printStackTrace();
+        }
     }
 
     private void closeClient(Socket cSocket) {
-	try {
-	    cSocket.close();
-	} catch(IOException ignore) {} 
+        try {
+            cSocket.close();
+        } catch(IOException ignore) {} 
     }
 
     public void stop() {
-	try {
-	    serverSocket.close();
-	} catch(IOException ignore) { }
+        try {
+            serverSocket.close();
+        } catch(IOException ignore) { }
     }
 
     public void replyUsername(ObjectOutputStream out, int key) {
-	try {
-	    MessageObject replyMessage = new MessageObject(key, null, "hans peter gustav");
-	    out.writeObject(replyMessage);
-	} catch (IOException e) {
-	    // ignore
-	}
-	System.out.println("Username requested\n");
+        try {
+            MessageObject replyMessage = new MessageObject(key, null, "hans peter gustav");
+            out.writeObject(replyMessage);
+        } catch (IOException e) {
+            // ignore
+        }
+        System.out.println("Username requested\n");
     }
 
     public void replyError(PrintWriter out) {
-	out.print("Error");
+        out.print("Error");
     }
 }
 
@@ -131,13 +131,13 @@ class MyRunnable implements Runnable {
 
     // passing original server object to this constructor
     public MyRunnable(Server server, Socket client) {
-	this.server = server;
-	this.client = client;
+        this.server = server;
+        this.client = client;
     }
 
     public void run() {
-	this.server.handle_connection(this.client);
-	// long threadId = Thread.currentThread().getId();
-	// System.out.print("ID: " + threadId + " ");
+        this.server.handle_connection(this.client);
+        // long threadId = Thread.currentThread().getId();
+        // System.out.print("ID: " + threadId + " ");
     }
 }

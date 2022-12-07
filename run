@@ -1,5 +1,5 @@
 #!/bin/bash
 
-javac appServer/MessageObject.java appServer/Server.java
-javac appServer/MessageObject.java client.java
+javac appServer/MessageObject.java appServer/Server2.java
+javac appServer/MessageObject.java clientv2.java
 javac Main.java

@@ -8,7 +8,12 @@ public class MessageObject implements Serializable {
     private String operation;
     private String payload; // optional if empty null
 
-    public MessageObject() { }
+    public MessageObject() {
+	this.key = 0;
+	this.operation = null;
+	this.payload = null;
+		
+    }
 
     public MessageObject(int key, String operation, String payload) {
 	this.key = key;

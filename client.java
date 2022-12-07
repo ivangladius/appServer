@@ -4,6 +4,7 @@ import java.net.*;
 
 import appServer.MessageObject;
 
+
 class Client {
 
     private Socket clientSocket;
@@ -39,6 +40,8 @@ class Client {
 	} catch(IOException e) {
 	    System.out.println("COULD NOT CONNECT!!!");
 	    status = false;
+	} catch(NullPointerException e) {
+	    e.printStackTrace();
 	}
 	status = true;
     }
@@ -108,7 +111,7 @@ class Client {
 public class client {
     public static void main(String[] args) {
 
-	Client client = new Client("localhost", Integer.parseInt(args[0]));
+	Client client = new Client(args[0], Integer.parseInt(args[1]));
 
 	try {
 	    String username = client.getUsername();
@@ -118,5 +121,12 @@ public class client {
 	    System.out.println("\nUsername not found!");
 	} catch (NullPointerException ignore) { }
 
+    }
+}
+
+private class NetworkThreadInstance implements Runnable, Client {
+
+    public NetworkThreadInstance(Client client) {
+	
     }
 }
